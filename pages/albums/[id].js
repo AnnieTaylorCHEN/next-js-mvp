@@ -1,18 +1,12 @@
 import Head from 'next/head';
 import Link from 'next/link';
 import { useState } from 'react';
+import { useRouter } from 'next/router';
 import FadeIn from 'react-fade-in/lib/FadeIn';
 
-export default function Home({ albums }) {
-	const [searchText, setSearchText] = useState('');
-
-	let filteredAlbums;
-
-	if (searchText === '') {
-		filteredAlbums = albums;
-	} else {
-		filteredAlbums = albums.filter((album) => album.title.includes(searchText));
-	}
+export default function Album({ photos }) {
+	const router = useRouter();
+	const { id } = router.query;
 
 	return (
 		<div className="container">
@@ -38,41 +32,29 @@ export default function Home({ albums }) {
 				<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5" />
 				<meta name="msapplication-TileColor" content="#da532c" />
 				<meta name="theme-color" content="#ffffff"></meta>
-				<title>Bear Photo App</title>
+				<title>Bear Photo App - Album {id} </title>
 				<link rel="icon" href="/favicon.ico" />
 			</Head>
+
 			<header>
 				<Link href="/">
 					<h1 className="title">The Bear Photo App</h1>
 				</Link>
+				<h2> Photo Album {id} </h2>
 			</header>
 			<main>
-				<section className="special">
-					<img
-						src="https://picsum.photos/id/1040/800/500"
-						alt="green scale photo"
-					/>
-					<Link href="/special">
-						<h2>Click here for this month's special!</h2>
-					</Link>
-				</section>
-				<section className="filter">
-					<label>Type title's name to filter albums by title:</label>
-					<input type="text" onChange={(e) => setSearchText(e.target.value)} />
-				</section>
-				<section className="album-container">
-					{filteredAlbums.map(({ userId, id, title }) => (
-						<Link href={`/albums/${id}`} key={id}>
-							<div className="album-card">
-								<FadeIn delay={200}>
-									<div className="album-card__info">
-										<p>{title}</p>
-										<p className="smallprint">Album Id: {id}</p>
-										<p className="smallprint">owned by user {userId}</p>
-									</div>
-								</FadeIn>
-							</div>
-						</Link>
+				<section className="photo-container">
+					{photos.map(({ id, title, url, thumbnailUrl }) => (
+						<div key={id} className="photo-card">
+							<Link href={url} download={title} target="_blank">
+								<img src={thumbnailUrl} alt={`photo-${id}`} />
+							</Link>
+
+							<FadeIn delay={100}>
+								<p>{title}</p>
+								<p className="smallprint">photo Id: {id}</p>
+							</FadeIn>
+						</div>
 					))}
 				</section>
 			</main>
@@ -97,58 +79,33 @@ export default function Home({ albums }) {
         .title {
           font-size: 2rem;
           display: block;
-          padding: 1rem;
+          padding: 1rem 0;
 		  cursor: pointer;
         }
 
-		.special {
-			display: flex;
-			flex-direction: column;
-			align-items: center;
-			justify-content: center;
-			cursor: pointer;
-		}
-
-        .filter {
-          display: flex;
-          flex-direction: column;
-          padding: 1rem;
-        }
-
-        .filter input {
-          height: 2rem;
-          padding: 0.5rem;
-          max-width: 300px;
-          margin: 1rem 0;
-        }
-
-        .album-container {
+        .photo-container {
           display: grid;
           grid-template-columns: repeat(4, 1fr);
           gap: 1rem;
         }
 
 		@media (max-width: 800){
-			.album-container {    
+			.photo-container {    
           grid-template-columns: repeat(2, 1fr);
           gap: 0.5rem;
         }
 		}
 
-        .album-card {
-          display: block;
+        .photo-card {
+          display: flex;
+		  flex-direction: column;
+		  align-items: center;
+		  justify-content: center;
           width: 280px;
           height: 280px;
           background: seashell;
+		  padding: 1rem;
           border-radius: 10px;
-          position: relative;
-        }
-
-        .album-card__info {
-          position: absolute;
-          bottom: 1rem;
-          right: 1rem;
-          text-align: right;
         }
 
         footer {
@@ -158,7 +115,6 @@ export default function Home({ albums }) {
           padding: 1rem;
         }
 			`}</style>
-
 			<style jsx global>{`
 				html,
 				body {
@@ -182,13 +138,28 @@ export default function Home({ albums }) {
 	);
 }
 
-export async function getStaticProps() {
-	const res = await fetch('https://jsonplaceholder.typicode.com/albums');
+export async function getStaticPaths() {
+	const res = await fetch(`https://jsonplaceholder.typicode.com/albums`);
 	const albums = await res.json();
+	let paths = albums.map((a) => ({
+		params: { id: a.id.toString() },
+	}));
+
+	return {
+		paths,
+		fallback: false,
+	};
+}
+
+export async function getStaticProps({ params }) {
+	const res = await fetch(
+		`https://jsonplaceholder.typicode.com/photos?albumId=${params.id}`
+	);
+	const photos = await res.json();
 
 	return {
 		props: {
-			albums,
+			photos,
 		},
 	};
 }

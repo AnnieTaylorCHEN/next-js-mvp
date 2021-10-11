@@ -1,19 +1,8 @@
 import Head from 'next/head';
 import Link from 'next/link';
-import { useState } from 'react';
-import FadeIn from 'react-fade-in/lib/FadeIn';
 
-export default function Home({ albums }) {
-	const [searchText, setSearchText] = useState('');
 
-	let filteredAlbums;
-
-	if (searchText === '') {
-		filteredAlbums = albums;
-	} else {
-		filteredAlbums = albums.filter((album) => album.title.includes(searchText));
-	}
-
+export default function Special({ photos }) {
 	return (
 		<div className="container">
 			<Head>
@@ -47,32 +36,20 @@ export default function Home({ albums }) {
 				</Link>
 			</header>
 			<main>
-				<section className="special">
-					<img
-						src="https://picsum.photos/id/1040/800/500"
-						alt="green scale photo"
-					/>
-					<Link href="/special">
-						<h2>Click here for this month's special!</h2>
-					</Link>
-				</section>
-				<section className="filter">
-					<label>Type title's name to filter albums by title:</label>
-					<input type="text" onChange={(e) => setSearchText(e.target.value)} />
-				</section>
+				<h2>This month's special!</h2>
 				<section className="album-container">
-					{filteredAlbums.map(({ userId, id, title }) => (
-						<Link href={`/albums/${id}`} key={id}>
-							<div className="album-card">
-								<FadeIn delay={200}>
-									<div className="album-card__info">
-										<p>{title}</p>
-										<p className="smallprint">Album Id: {id}</p>
-										<p className="smallprint">owned by user {userId}</p>
-									</div>
-								</FadeIn>
+					{photos.map(({ id, author, width, height, url, download_url }) => (
+						<div key={id} className="album-card">
+							<div className="album-card__info">
+								<a href={download_url} download="picture" target="_blank">
+									<img src={download_url} alt={`pic by ${author} `} />
+								</a>
+								<p className="smallprint">photo by: {author}</p>
+								<p className="smallprint">
+									size:{width} x {height}
+								</p>
 							</div>
-						</Link>
+						</div>
 					))}
 				</section>
 			</main>
@@ -101,14 +78,6 @@ export default function Home({ albums }) {
 		  cursor: pointer;
         }
 
-		.special {
-			display: flex;
-			flex-direction: column;
-			align-items: center;
-			justify-content: center;
-			cursor: pointer;
-		}
-
         .filter {
           display: flex;
           flex-direction: column;
@@ -128,7 +97,7 @@ export default function Home({ albums }) {
           gap: 1rem;
         }
 
-		@media (max-width: 800){
+        @media (max-width: 800){
 			.album-container {    
           grid-template-columns: repeat(2, 1fr);
           gap: 0.5rem;
@@ -149,6 +118,11 @@ export default function Home({ albums }) {
           bottom: 1rem;
           right: 1rem;
           text-align: right;
+        }
+
+        .album-card__info img {
+            width: 250px;
+            height: 180px;
         }
 
         footer {
@@ -183,12 +157,12 @@ export default function Home({ albums }) {
 }
 
 export async function getStaticProps() {
-	const res = await fetch('https://jsonplaceholder.typicode.com/albums');
-	const albums = await res.json();
+	const res = await fetch('https://picsum.photos/v2/list');
+	const photos = await res.json();
 
 	return {
 		props: {
-			albums,
+			photos,
 		},
 	};
 }
