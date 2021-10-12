@@ -1,13 +1,15 @@
-# This is a small project that uses Next.js to test a small app.
+# This is a small project that uses Next.js.
 
 Click this ---> [Live Demo](https://next-js-mvp.vercel.app/)
 
 - The app has albums, and album can display user name (number) and title of the album. 
 - There is a filter where you can type name of the title to filter out albums that you want to see. 
+- You can also filter by user id which are numbers here.
+- You can combine both filters for specific result.
 - When ablum is clicked, you will be link to the specific album's page to view the photos belonging to the album. 
 - There is a display for photo information such as name and photo id. 
-- Album name (id number) is displayed both in the title and tab, so people know which page they're at. 
-- Filter component and utils/helper function is imported from my project [Petite & Minimal](https://www.petiteandminimal.com/) to save time. 
+- Album name (id number) is displayed both in the title and browser tab, so people know which page they're at. 
+- NOTE: Filter component and utils/helper function are imported and modified from my project [Petite & Minimal](https://www.petiteandminimal.com/) to save time. 
 
 ## Bonus 
 
