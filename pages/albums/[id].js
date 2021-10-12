@@ -45,10 +45,12 @@ export default function Album({ photos }) {
 			<main>
 				<section className="photo-container">
 					{photos.map(({ id, title, url, thumbnailUrl }) => (
-						<div key={id} className="photo-card">
-							<Link href={url} download={title} target="_blank">
-								<img src={thumbnailUrl} alt={`photo-${id}`} />
-							</Link>
+						<div key={id}>
+							<div className="photo-card">
+								<Link href={url} download={title} target="_blank">
+									<img src={thumbnailUrl} alt={`photo-${id}`} />
+								</Link>
+							</div>
 
 							<FadeIn delay={100}>
 								<p>{title}</p>

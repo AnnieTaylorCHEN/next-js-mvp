@@ -1,18 +1,34 @@
 import Head from 'next/head';
 import Link from 'next/link';
-import { useState } from 'react';
-import FadeIn from 'react-fade-in/lib/FadeIn';
+import { useState, useCallback, useMemo } from 'react';
+
+import Filter from '../components/Filter';
+import { filterBySelected } from '../utils/helper';
 
 export default function Home({ albums }) {
 	const [searchText, setSearchText] = useState('');
+	const [selected, setSelected] = useState([]);
+	const onSelectedToggled = useCallback((selection) => {
+		setSelected(selection);
+	}, []);
+
+	const users = albums.map((album) => album.userId);
+	const uniqueUsers = Array.from(new Set(users));
+
+	const filteredAlbumsByUsers = useMemo(() => {
+		return selected.length === 0 ? albums : filterBySelected(albums, selected);
+	}, [selected]);
 
 	let filteredAlbums;
 
 	if (searchText === '') {
-		filteredAlbums = albums;
+		filteredAlbums = filteredAlbumsByUsers;
 	} else {
-		filteredAlbums = albums.filter((album) => album.title.includes(searchText));
+		filteredAlbums = filteredAlbumsByUsers.filter((album) =>
+			album.title.includes(searchText)
+		);
 	}
+
 
 	return (
 		<div className="container">
@@ -57,6 +73,12 @@ export default function Home({ albums }) {
 					</Link>
 				</section>
 				<section className="filter">
+					<p>Click on the number to filter albums by user's Id</p>
+					<Filter
+						filterItems={uniqueUsers}
+						selected={selected}
+						onItemsUpdate={onSelectedToggled}
+					/>
 					<label>Type title's name to filter albums by title:</label>
 					<input type="text" onChange={(e) => setSearchText(e.target.value)} />
 				</section>
@@ -64,13 +86,11 @@ export default function Home({ albums }) {
 					{filteredAlbums.map(({ userId, id, title }) => (
 						<Link href={`/albums/${id}`} key={id}>
 							<div className="album-card">
-								<FadeIn delay={200}>
-									<div className="album-card__info">
-										<p>{title}</p>
-										<p className="smallprint">Album Id: {id}</p>
-										<p className="smallprint">owned by user {userId}</p>
-									</div>
-								</FadeIn>
+								<div className="album-card__info">
+									<p>{title}</p>
+									<p className="smallprint">Album Id: {id}</p>
+									<p className="smallprint">owned by user {userId}</p>
+								</div>
 							</div>
 						</Link>
 					))}
@@ -121,6 +141,7 @@ export default function Home({ albums }) {
           max-width: 300px;
           margin: 1rem 0;
         }
+
 
         .album-container {
           display: grid;
