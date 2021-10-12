@@ -1,6 +1,6 @@
 # This is a small project that uses Next.js to test a small app.
 
-Click this ---> [Live Demo](https://next-js-mvp-mvjje9t99-annietaylorchen.vercel.app/)
+Click this ---> [Live Demo](https://next-js-mvp.vercel.app/)
 
 - The app has albums, and album can display user name (number) and title of the album. 
 - There is a filter where you can type name of the title to filter out albums that you want to see. 
